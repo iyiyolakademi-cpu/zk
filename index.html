@@ -307,7 +307,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
 .harvest-meter{height:12px;border-radius:20px;background:#315d3533;overflow:hidden;margin:2px 6px}.harvest-meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#72cd48,#f9d958);transition:width .4s;border-radius:20px}
 #screen-game{justify-content:flex-start}.hintline{text-align:center;font-size:12px;font-weight:800;color:#315d35;min-height:16px}.tile.hint .disc{animation:hintglow .65s alternate infinite}@keyframes hintglow{to{transform:scale(.84);box-shadow:0 0 0 3px #fff4a0}}
 @media(prefers-reduced-motion:reduce){.sun,.cloud,.row-icons span,.logo-emoji{animation:none}}
-</style>
+html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:block}.app{margin:0 auto;overflow:visible;min-height:100vh;min-height:100dvh;isolation:isolate}.sun,.cloud{pointer-events:none;z-index:-1}.sun{right:0;top:0}.cloud{display:none}.screen{flex:none;min-width:0}.screen.active{animation:screenIn .25s ease both}#screen-start{min-height:calc(100vh - 65px);min-height:calc(100dvh - 65px)}.board-wrap{flex:none;max-width:100%;margin:8px auto}.harvest-meter{flex:none}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;margin:8px 0}.tools button{padding:8px 3px;white-space:normal;line-height:1.2}#screen-start .tools{grid-template-columns:repeat(2,minmax(0,1fr));max-width:320px}.overlay{overflow-y:auto}.modal{margin:auto}.lvl-header{position:sticky;top:0;z-index:4;background:#d9efc5;padding:8px 0}.chip{min-width:0;font-size:13px}.footer-note{margin-bottom:8px}@media(max-height:700px){#screen-game{gap:6px}.goals-bar{padding:5px}.chip{padding:5px}.tools{margin:4px 0}.hintline{font-size:11px}#screen-start{gap:10px}.logo-emoji{font-size:64px}.title{font-size:36px}}@media(max-width:350px){.app{padding-left:8px;padding-right:8px}.lvl-grid{gap:7px}.tools button{font-size:11px}}</style>
 </head>
 <body>
 <div class="app">
@@ -470,7 +470,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
   /* ================= NAV ================= */
   function showScreen(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    document.getElementById(id).classList.add('active'); window.scrollTo(0,0);
   }
   function refreshLivesUI(){
     document.getElementById('lives-pill-start').textContent = '❤️ ' + lives + ' Can';
@@ -529,7 +529,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
   /* ================= GAME SETUP ================= */
   function startLevel(id){
     if(lives<=0){ document.getElementById('overlay-nolives').classList.add('active'); return; }
-    hammers=3; shuffles=1; hammerMode=false; document.getElementById('hammer').textContent='🔨 Hasat (3)';document.getElementById('shuffle').disabled=false;
+    hammers=3; shuffles=1; hammerMode=false; document.getElementById('hammer').textContent='🔨 Hasat (3)';document.getElementById('shuffle').disabled=false;document.getElementById('hintline').textContent='Meyveleri kaydır veya iki komşu taşı seç.';
     fitBoard();
     curLevel = JSON.parse(JSON.stringify(LEVELS.find(l=>l.id===id)));
     curLevel.goals.forEach(g=> g.have = 0);
@@ -676,7 +676,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
     const cx = tile.col*px + px/2;
     const cy = tile.row*px + px/2;
     const color = TYPE_COLOR[tile.type];
-    const count = 6;
+    const count = 4;
     for(let i=0;i<count;i++){
       const p = document.createElement('div');
       p.className = 'particle';
@@ -711,7 +711,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
   function onTileClick(tile){
     if(busy || !tiles[tile.id]) return;
     clearHint();
-    if(hammerMode && hammers>0){hammerMode=false;hammers--;document.getElementById('hammer').textContent='🔨 Hasat ('+hammers+')';busy=true;comboMult=1;resolveMatches(new Set([tile.id]),finishTurn);return;}
+    if(hammerMode && hammers>0){hammerMode=false;document.getElementById('hintline').textContent='Meyveleri kaydır veya iki komşu taşı seç.';hammers--;document.getElementById('hammer').textContent='🔨 Hasat ('+hammers+')';busy=true;comboMult=1;resolveMatches(new Set([tile.id]),finishTurn);return;}
     if(!selected){
       selected = tile;
       tile.el.classList.add('selected');
@@ -813,7 +813,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
       }
       tile.el.classList.add('matched');
       spawnParticles(tile);
-      sfx.pop(i); i++;
+      if(i<4)sfx.pop(i); i++;
     });
     if(comboMult>1){
       showCombo(comboMult);
@@ -924,9 +924,9 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
     }
   });
 
-  function fitBoard(){const w=Math.min(window.innerWidth-32,488,Math.max(240,window.innerHeight-245));document.documentElement.style.setProperty('--tile',Math.floor(w/N)+'px');}
+  function fitBoard(){const w=Math.max(80,Math.min(document.documentElement.clientWidth-32,480,Math.max(240,window.innerHeight-300)));document.documentElement.style.setProperty('--tile',Math.floor(w/N)+'px');}
   function possible(){for(let r=0;r<N;r++)for(let c=0;c<N;c++)for(const [dr,dc] of [[1,0],[0,1]]){if(r+dr>=N||c+dc>=N)continue;const a=grid[r][c],b=grid[r+dr][c+dc];grid[r][c]=b;grid[r+dr][c+dc]=a;const valid=findMatches().size>0;grid[r][c]=a;grid[r+dr][c+dc]=b;if(valid)return [a,b];}return null;}
-  function buildPlayable(){for(let i=0;i<60;i++){buildBoard();if(possible())return;}}
+  function buildPlayable(){selected=null;for(let i=0;i<60;i++){buildBoard();if(!findMatches().size&&possible())return;}}
   function clearHint(){boardEl.querySelectorAll('.hint').forEach(e=>e.classList.remove('hint'));}
   function finishTurn(){busy=false;checkEndConditions();if(!busy&&!possible()){buildPlayable();document.getElementById('hintline').textContent='Hamle kalmadı, bahçe yenilendi!';}}
   document.getElementById('hint').onclick=()=>{if(busy)return;clearHint();const p=possible();if(p)p.forEach(id=>tiles[id].el.classList.add('hint'));};
@@ -934,7 +934,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
   document.getElementById('hammer').onclick=()=>{if(busy||!hammers)return;hammerMode=!hammerMode;if(selected){selected.el.classList.remove('selected');selected=null;}document.getElementById('hintline').textContent=hammerMode?'Hasat etmek istediğin taşı seç.':'Meyveleri kaydır veya iki komşu taşı seç.';};
   let gesture=null, suppress=0;
   boardEl.addEventListener('pointerdown',e=>{const el=e.target.closest('.tile');if(busy||!el)return;gesture={tile:Object.values(tiles).find(t=>t.el===el),x:e.clientX,y:e.clientY,id:e.pointerId};});
-  boardEl.addEventListener('pointermove',e=>{if(!gesture||gesture.id!==e.pointerId||busy||hammerMode)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;const a=gesture.tile;gesture=null;suppress=performance.now()+450;const r=a.row+(Math.abs(dy)>Math.abs(dx)?Math.sign(dy):0),c=a.col+(Math.abs(dx)>=Math.abs(dy)?Math.sign(dx):0);if(r<0||c<0||r>=N||c>=N)return;if(selected)selected.el.classList.remove('selected');selected=null;try{navigator.vibrate?.(15);}catch(e){}attemptSwap(a,tiles[grid[r][c]]);});
+  boardEl.addEventListener('pointermove',e=>{if(!gesture||gesture.id!==e.pointerId||busy||hammerMode)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;const a=gesture.tile;gesture=null;suppress=performance.now()+350;const r=a.row+(Math.abs(dy)>Math.abs(dx)?Math.sign(dy):0),c=a.col+(Math.abs(dx)>=Math.abs(dy)?Math.sign(dx):0);if(r<0||c<0||r>=N||c>=N)return;if(selected)selected.el.classList.remove('selected');selected=null;try{navigator.vibrate?.(15);}catch(e){}attemptSwap(a,tiles[grid[r][c]]);});
   boardEl.addEventListener('pointerup',()=>gesture=null);boardEl.addEventListener('pointercancel',()=>gesture=null);boardEl.addEventListener('click',e=>{if(performance.now()<suppress){e.stopPropagation();e.preventDefault();}},true);
   const sound=document.getElementById('sound');function soundUI(){sound.textContent=muted?'🔇 Ses kapalı':'🔊 Ses açık';}sound.onclick=()=>{muted=!muted;soundUI();save();};soundUI();
   document.getElementById('daily').onclick=()=>{const day=new Date().toLocaleDateString('tr-TR');if(rewardDay===day){document.getElementById('daily').textContent='✓ Ödül alındı';return;}rewardDay=day;lives=Math.min(100,lives+10);refreshLivesUI();document.getElementById('daily').textContent='✓ +10 can';launchConfetti();};
