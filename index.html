@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Bahçe Hasat Macerası</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
@@ -295,6 +295,18 @@
   }
 
   .footer-note{text-align:center;font-size:10px;color:var(--soil-dark);opacity:.55;margin-top:14px;font-weight:700;position:relative;z-index:2;}
+ 
+body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);overscroll-behavior:none}
+.app{max-width:520px;min-height:100dvh;padding:max(12px,env(safe-area-inset-top)) 12px max(16px,env(safe-area-inset-bottom));background:linear-gradient(160deg,#d9f5d0aa,#fef1b455 55%,#79bc72aa);box-shadow:0 0 60px #164e3533}
+.title{font-size:clamp(38px,10vw,58px);color:#fff4be;-webkit-text-stroke:1.5px #315d35;text-shadow:0 5px #315d35,0 9px 20px #326a5977}
+.logo-emoji{font-size:90px}.wood-btn{background:linear-gradient(#91dc58,#429b35);box-shadow:0 5px #27682c,0 9px 18px #285b3544;border:2px solid #c6f6a6;min-height:46px}.wood-btn.berry{background:linear-gradient(#ff9ca9,#d84e67)}
+.board-wrap{touch-action:none;box-shadow:0 0 0 3px #ffe5a2,0 8px 0 #31592d,0 16px 26px #234f4766;background:linear-gradient(135deg,#254f38,#397c4c);border-radius:16px}
+.disc{border-radius:27%;width:88%;height:88%;border:1px solid #ffffff77;font-size:calc(var(--tile) * .68);background:radial-gradient(circle at 30% 20%,#ffffffaa,var(--tc) 65%);text-shadow:0 2px 3px #0003}
+.chip,.goal-chip,.lvl-card{border:1px solid #fff;border-radius:18px}.lvl-grid{padding-bottom:20px}.lvl-card:not(.locked){background:linear-gradient(#fffdf1,#f7dfa2)}
+.tools{display:flex;gap:8px;justify-content:center;margin:10px 0;flex-wrap:wrap}.tools button{border:1px solid #fff;background:#fff5d9;border-radius:14px;padding:10px 12px;font:800 13px Nunito,sans-serif;color:#315d35;box-shadow:0 3px #c8aa6d;min-height:44px}.tools button:disabled{opacity:.45}
+.harvest-meter{height:12px;border-radius:20px;background:#315d3533;overflow:hidden;margin:2px 6px}.harvest-meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#72cd48,#f9d958);transition:width .4s;border-radius:20px}
+#screen-game{justify-content:flex-start}.hintline{text-align:center;font-size:12px;font-weight:800;color:#315d35;min-height:16px}.tile.hint .disc{animation:hintglow .65s alternate infinite}@keyframes hintglow{to{transform:scale(.84);box-shadow:0 0 0 3px #fff4a0}}
+@media(prefers-reduced-motion:reduce){.sun,.cloud,.row-icons span,.logo-emoji{animation:none}}
 </style>
 </head>
 <body>
@@ -314,7 +326,7 @@
       <span>🍓</span><span>🧅</span><span>🧄</span><span>🥕</span><span>🍇</span>
     </div>
     <div class="lives-pill" id="lives-pill-start">❤️ 100 Can</div>
-    <button class="wood-btn" id="btn-play">▶ OYNA</button>
+    <button class="wood-btn" id="btn-play">▶ MACERAYA BAŞLA</button><div class="tools"><button id="daily">🎁 Günlük ödül</button><button id="sound">🔊 Ses</button></div>
   </div>
 
   <!-- LEVEL SELECT -->
@@ -340,7 +352,7 @@
       <div class="chip" id="chip-lives">❤️ 100</div>
     </div>
     <div class="goals-bar" id="goals-bar"></div>
-    <div class="board-wrap" id="board"></div>
+    <div class="harvest-meter"><i id="meter"></i></div><div class="board-wrap" id="board"></div><div class="tools"><button id="hint">💡 İpucu</button><button id="shuffle">🔀 Karıştır</button><button id="hammer">🔨 Hasat (3)</button></div><div id="hintline" class="hintline">Meyveleri kaydır veya iki komşu taşı seç.</div>
   </div>
 
   <!-- WIN MODAL -->
@@ -366,7 +378,7 @@
       <p>Hedefi tamamlayamadın, bir can harcandı. Tekrar dener misin?</p>
       <div class="modal-btns">
         <button class="wood-btn small" id="btn-lose-levels">Seviyeler</button>
-        <button class="wood-btn ghost small" id="btn-lose-retry">Tekrar Dene (❤️-1)</button>
+        <button class="wood-btn ghost small" id="btn-lose-retry">Tekrar Dene</button>
       </div>
     </div>
   </div>
@@ -383,7 +395,7 @@
     </div>
   </div>
 
-  <div class="footer-note">Bahçe Hasat Macerası — örnek oyun</div>
+  <div class="footer-note">BAHÇE HASAT · 2.0</div>
 </div>
 
 <script>
@@ -407,10 +419,15 @@
     { id:6, name:"Büyük Hasat",       moves:26, goals:TYPES.map(t=>({type:t,need:9})) },
   ];
 
+  for(let id=7;id<=100;id++){const a=(id-1)%TYPES.length;LEVELS.push({id,name:['Bereketli Bahçe','Güneşli Tarla','Altın Hasat','Yeşil Vadi'][Math.floor((id-7)/6)%4],moves:Math.min(34,24+Math.floor(id/10)),goals:[{type:TYPES[a],need:Math.min(30,14+Math.floor(id/5))},{type:TYPES[(a+2)%6],need:Math.min(26,11+Math.floor(id/6))}]});}
   let progress = {1:{unlocked:true,stars:0}};
   for(let i=2;i<=LEVELS.length;i++) progress[i] = {unlocked:false,stars:0};
   let lives = 100;
   const MAX_LIVES = 100;
+  let muted=false, rewardDay='', hammers=3, hammerMode=false, shuffles=1;
+  try{const p=JSON.parse(localStorage.getItem('harvest-v2')||'null');if(p){Object.assign(progress,p.progress);lives=Math.max(0,Math.min(100,p.lives??100));muted=!!p.muted;rewardDay=p.rewardDay||'';}}catch(e){}
+  function save(){try{localStorage.setItem('harvest-v2',JSON.stringify({progress,lives,muted,rewardDay}));}catch(e){}}
+
 
   /* ================= STATE ================= */
   let grid = [];
@@ -427,6 +444,7 @@
   /* ================= SOUND ================= */
   let actx = null;
   function tone(freqStart,freqEnd,dur,type,vol){
+    if(muted)return;
     try{
       actx = actx || new (window.AudioContext||window.webkitAudioContext)();
       const o = actx.createOscillator();
@@ -459,12 +477,12 @@
     document.getElementById('lives-pill-levels').textContent = '❤️ ' + lives;
     const c = document.getElementById('chip-lives');
     if(c) c.textContent = '❤️ ' + lives;
-    document.getElementById('btn-play').disabled = false;
+    document.getElementById('btn-play').disabled = false; save();
   }
 
   document.getElementById('btn-play').onclick = ()=>{ renderLevelGrid(); showScreen('screen-levels'); };
   document.getElementById('btn-back-1').onclick = ()=> showScreen('screen-start');
-  document.getElementById('btn-back-2').onclick = ()=> { renderLevelGrid(); showScreen('screen-levels'); };
+  document.getElementById('btn-back-2').onclick = ()=> { if(busy)return; renderLevelGrid(); showScreen('screen-levels'); };
   document.getElementById('btn-win-levels').onclick = ()=>{ closeModals(); renderLevelGrid(); showScreen('screen-levels'); };
   document.getElementById('btn-lose-levels').onclick = ()=>{ closeModals(); renderLevelGrid(); showScreen('screen-levels'); };
   document.getElementById('btn-lose-retry').onclick = ()=>{
@@ -511,6 +529,8 @@
   /* ================= GAME SETUP ================= */
   function startLevel(id){
     if(lives<=0){ document.getElementById('overlay-nolives').classList.add('active'); return; }
+    hammers=3; shuffles=1; hammerMode=false; document.getElementById('hammer').textContent='🔨 Hasat (3)';document.getElementById('shuffle').disabled=false;
+    fitBoard();
     curLevel = JSON.parse(JSON.stringify(LEVELS.find(l=>l.id===id)));
     curLevel.goals.forEach(g=> g.have = 0);
     movesLeft = curLevel.moves;
@@ -520,11 +540,12 @@
     document.getElementById('level-title').textContent = 'Seviye ' + id + ' · ' + curLevel.name;
     updateHud();
     renderGoals();
-    buildBoard();
+    buildPlayable();
     showScreen('screen-game');
   }
 
   function updateHud(bump){
+    save(); if(curLevel){const total=curLevel.goals.reduce((n,g)=>n+g.need,0);document.getElementById('meter').style.width=(100*curLevel.goals.reduce((n,g)=>n+Math.min(g.have,g.need),0)/total)+'%';}
     const mchip = document.getElementById('chip-moves');
     mchip.textContent = '🎯 ' + movesLeft;
     mchip.classList.toggle('warn', movesLeft <= 5);
@@ -688,7 +709,9 @@
 
   /* ================= INPUT ================= */
   function onTileClick(tile){
-    if(busy) return;
+    if(busy || !tiles[tile.id]) return;
+    clearHint();
+    if(hammerMode && hammers>0){hammerMode=false;hammers--;document.getElementById('hammer').textContent='🔨 Hasat ('+hammers+')';busy=true;comboMult=1;resolveMatches(new Set([tile.id]),finishTurn);return;}
     if(!selected){
       selected = tile;
       tile.el.classList.add('selected');
@@ -737,8 +760,7 @@
         updateHud(true);
         comboMult = 1;
         resolveMatches(matches, ()=>{
-          busy = false;
-          checkEndConditions();
+          finishTurn();
         });
       }
     }, 240);
@@ -880,13 +902,13 @@
       starsEl.innerHTML = [0,1,2].map(i=> `<span>${i<stars?'★':'☆'}</span>`).join('');
       document.getElementById('win-score').textContent = 'Puan: ' + score;
       document.getElementById('btn-win-next').style.display = curLevel.id < LEVELS.length ? 'inline-block' : 'none';
-      sfx.win();
+      save(); busy=true; sfx.win();
       launchConfetti();
       document.getElementById('overlay-win').classList.add('active');
     } else if(movesLeft<=0){
       lives = Math.max(0, lives-1);
       updateHud();
-      sfx.lose();
+      save(); busy=true; sfx.lose();
       if(lives<=0){
         document.getElementById('overlay-nolives').classList.add('active');
       } else {
@@ -896,12 +918,27 @@
   }
 
   window.addEventListener('resize', ()=>{
+    fitBoard();
     if(document.getElementById('screen-game').classList.contains('active')){
       positionCellBgs(); Object.values(tiles).forEach(placeTile);
     }
   });
 
-  refreshLivesUI();
+  function fitBoard(){const w=Math.min(window.innerWidth-32,488,Math.max(240,window.innerHeight-245));document.documentElement.style.setProperty('--tile',Math.floor(w/N)+'px');}
+  function possible(){for(let r=0;r<N;r++)for(let c=0;c<N;c++)for(const [dr,dc] of [[1,0],[0,1]]){if(r+dr>=N||c+dc>=N)continue;const a=grid[r][c],b=grid[r+dr][c+dc];grid[r][c]=b;grid[r+dr][c+dc]=a;const valid=findMatches().size>0;grid[r][c]=a;grid[r+dr][c+dc]=b;if(valid)return [a,b];}return null;}
+  function buildPlayable(){for(let i=0;i<60;i++){buildBoard();if(possible())return;}}
+  function clearHint(){boardEl.querySelectorAll('.hint').forEach(e=>e.classList.remove('hint'));}
+  function finishTurn(){busy=false;checkEndConditions();if(!busy&&!possible()){buildPlayable();document.getElementById('hintline').textContent='Hamle kalmadı, bahçe yenilendi!';}}
+  document.getElementById('hint').onclick=()=>{if(busy)return;clearHint();const p=possible();if(p)p.forEach(id=>tiles[id].el.classList.add('hint'));};
+  document.getElementById('shuffle').onclick=()=>{if(busy||!shuffles)return;shuffles--;selected=null;buildPlayable();document.getElementById('shuffle').disabled=true;};
+  document.getElementById('hammer').onclick=()=>{if(busy||!hammers)return;hammerMode=!hammerMode;if(selected){selected.el.classList.remove('selected');selected=null;}document.getElementById('hintline').textContent=hammerMode?'Hasat etmek istediğin taşı seç.':'Meyveleri kaydır veya iki komşu taşı seç.';};
+  let gesture=null, suppress=0;
+  boardEl.addEventListener('pointerdown',e=>{const el=e.target.closest('.tile');if(busy||!el)return;gesture={tile:Object.values(tiles).find(t=>t.el===el),x:e.clientX,y:e.clientY,id:e.pointerId};});
+  boardEl.addEventListener('pointermove',e=>{if(!gesture||gesture.id!==e.pointerId||busy||hammerMode)return;const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;const a=gesture.tile;gesture=null;suppress=performance.now()+450;const r=a.row+(Math.abs(dy)>Math.abs(dx)?Math.sign(dy):0),c=a.col+(Math.abs(dx)>=Math.abs(dy)?Math.sign(dx):0);if(r<0||c<0||r>=N||c>=N)return;if(selected)selected.el.classList.remove('selected');selected=null;try{navigator.vibrate?.(15);}catch(e){}attemptSwap(a,tiles[grid[r][c]]);});
+  boardEl.addEventListener('pointerup',()=>gesture=null);boardEl.addEventListener('pointercancel',()=>gesture=null);boardEl.addEventListener('click',e=>{if(performance.now()<suppress){e.stopPropagation();e.preventDefault();}},true);
+  const sound=document.getElementById('sound');function soundUI(){sound.textContent=muted?'🔇 Ses kapalı':'🔊 Ses açık';}sound.onclick=()=>{muted=!muted;soundUI();save();};soundUI();
+  document.getElementById('daily').onclick=()=>{const day=new Date().toLocaleDateString('tr-TR');if(rewardDay===day){document.getElementById('daily').textContent='✓ Ödül alındı';return;}rewardDay=day;lives=Math.min(100,lives+10);refreshLivesUI();document.getElementById('daily').textContent='✓ +10 can';launchConfetti();};
+  fitBoard();refreshLivesUI();
 })();
 </script>
 </body>
