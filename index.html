@@ -307,7 +307,7 @@ body{background:radial-gradient(ellipse at 50% 0,#d8faff,#86cfa0 55%,#226d44);ov
 .harvest-meter{height:12px;border-radius:20px;background:#315d3533;overflow:hidden;margin:2px 6px}.harvest-meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#72cd48,#f9d958);transition:width .4s;border-radius:20px}
 #screen-game{justify-content:flex-start}.hintline{text-align:center;font-size:12px;font-weight:800;color:#315d35;min-height:16px}.tile.hint .disc{animation:hintglow .65s alternate infinite}@keyframes hintglow{to{transform:scale(.84);box-shadow:0 0 0 3px #fff4a0}}
 @media(prefers-reduced-motion:reduce){.sun,.cloud,.row-icons span,.logo-emoji{animation:none}}
-html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:block}.app{margin:0 auto;overflow:visible;min-height:100vh;min-height:100dvh;isolation:isolate}.sun,.cloud{pointer-events:none;z-index:-1}.sun{right:0;top:0}.cloud{display:none}.screen{flex:none;min-width:0}.screen.active{animation:screenIn .25s ease both}#screen-start{min-height:calc(100vh - 65px);min-height:calc(100dvh - 65px)}.board-wrap{flex:none;max-width:100%;margin:8px auto}.harvest-meter{flex:none}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;margin:8px 0}.tools button{padding:8px 3px;white-space:normal;line-height:1.2}#screen-start .tools{grid-template-columns:repeat(2,minmax(0,1fr));max-width:320px}.overlay{overflow-y:auto}.modal{margin:auto}.lvl-header{position:sticky;top:0;z-index:4;background:#d9efc5;padding:8px 0}.chip{min-width:0;font-size:13px}.footer-note{margin-bottom:8px}@media(max-height:700px){#screen-game{gap:6px}.goals-bar{padding:5px}.chip{padding:5px}.tools{margin:4px 0}.hintline{font-size:11px}#screen-start{gap:10px}.logo-emoji{font-size:64px}.title{font-size:36px}}@media(max-width:350px){.app{padding-left:8px;padding-right:8px}.lvl-grid{gap:7px}.tools button{font-size:11px}}</style>
+html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:block}.app{margin:0 auto;overflow:visible;min-height:100vh;min-height:100dvh;isolation:isolate}.sun,.cloud{pointer-events:none;z-index:-1}.sun{right:0;top:0}.cloud{display:none}.screen{flex:none;min-width:0}.screen.active{animation:screenIn .25s ease both}#screen-start{min-height:calc(100vh - 65px);min-height:calc(100dvh - 65px)}.board-wrap{flex:none;max-width:100%;margin:8px auto}.harvest-meter{flex:none}.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%;margin:8px 0}.tools button{padding:8px 3px;white-space:normal;line-height:1.2}#screen-start .tools{grid-template-columns:repeat(2,minmax(0,1fr));max-width:320px}.overlay{overflow-y:auto}.modal{margin:auto}.lvl-header{position:sticky;top:0;z-index:4;background:#d9efc5;padding:8px 0}.chip{min-width:0;font-size:13px}.footer-note{margin-bottom:8px}@media(max-height:700px){#screen-game{gap:6px}.goals-bar{padding:5px}.chip{padding:5px}.tools{margin:4px 0}.hintline{font-size:11px}#screen-start{gap:10px}.logo-emoji{font-size:64px}.title{font-size:36px}}@media(max-width:350px){.app{padding-left:8px;padding-right:8px}.lvl-grid{gap:7px}.tools button{font-size:11px}} .garden{width:100%;max-width:340px;padding:14px;border-radius:24px;background:linear-gradient(#c9efff 0 42%,#8bc96a 42%);border:3px solid #fff8db;box-shadow:0 5px #67974d;overflow:hidden}.garden-scene{font-size:42px;min-height:82px;display:flex;align-items:center;justify-content:center;gap:8px}.garden button{border:0;border-radius:12px;padding:10px;background:#fff6d6;color:#345c30;font-weight:800}.garden small{display:block;margin:5px}.disc.special{outline:3px solid #fff3a0;box-shadow:0 0 12px #ffe16b}.disc.special:after{content:'✦';position:absolute;right:3px;top:0;color:#fff;font-size:14px;text-shadow:0 1px 3px #333}.world-heading{grid-column:1/-1;font-weight:800;padding:12px 8px;background:#fff5d9;border-radius:12px}.wallet{font-weight:800;color:#75501b}.tile{top:0;left:0}.cell-bg{pointer-events:none} </style>
 </head>
 <body>
 <div class="app">
@@ -325,7 +325,7 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
     <div class="row-icons">
       <span>🍓</span><span>🧅</span><span>🧄</span><span>🥕</span><span>🍇</span>
     </div>
-    <div class="lives-pill" id="lives-pill-start">❤️ 100 Can</div>
+    <div class="garden"><div class="garden-scene" id="garden-scene">🌱 🏡 🌱</div><div class="wallet" id="wallet">🪙 0</div><small id="garden-label">Bahçeni geliştir!</small><button id="upgrade">Bahçeyi geliştir · 100 🪙</button></div><div class="lives-pill" id="lives-pill-start">❤️ 100 Can</div>
     <button class="wood-btn" id="btn-play">▶ MACERAYA BAŞLA</button><div class="tools"><button id="daily">🎁 Günlük ödül</button><button id="sound">🔊 Ses</button></div>
   </div>
 
@@ -424,9 +424,9 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
   for(let i=2;i<=LEVELS.length;i++) progress[i] = {unlocked:false,stars:0};
   let lives = 100;
   const MAX_LIVES = 100;
-  let muted=false, rewardDay='', hammers=3, hammerMode=false, shuffles=1;
-  try{const p=JSON.parse(localStorage.getItem('harvest-v2')||'null');if(p){Object.assign(progress,p.progress);lives=Math.max(0,Math.min(100,p.lives??100));muted=!!p.muted;rewardDay=p.rewardDay||'';}}catch(e){}
-  function save(){try{localStorage.setItem('harvest-v2',JSON.stringify({progress,lives,muted,rewardDay}));}catch(e){}}
+  let coins=0,garden=0; let muted=false, rewardDay='', hammers=3, hammerMode=false, shuffles=1;
+  try{const p=JSON.parse(localStorage.getItem('harvest-v2')||'null');if(p){Object.assign(progress,p.progress);lives=Math.max(0,Math.min(100,p.lives??100));coins=Math.max(0,Number(p.coins)||0);garden=Math.max(0,Math.min(5,Number(p.garden)||0));muted=!!p.muted;rewardDay=p.rewardDay||'';}}catch(e){}
+  function save(){try{localStorage.setItem('harvest-v2',JSON.stringify({progress,lives,muted,rewardDay,coins,garden}));}catch(e){}}
 
 
   /* ================= STATE ================= */
@@ -477,7 +477,7 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
     document.getElementById('lives-pill-levels').textContent = '❤️ ' + lives;
     const c = document.getElementById('chip-lives');
     if(c) c.textContent = '❤️ ' + lives;
-    document.getElementById('btn-play').disabled = false; save();
+    document.getElementById('btn-play').disabled = false; gardenUI(); save();
   }
 
   document.getElementById('btn-play').onclick = ()=>{ renderLevelGrid(); showScreen('screen-levels'); };
@@ -511,6 +511,7 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
     const wrap = document.getElementById('level-grid');
     wrap.innerHTML = '';
     LEVELS.forEach(lv=>{
+      if((lv.id-1)%20===0){const h=document.createElement('div');h.className='world-heading';h.textContent=['🌸 Çilek Vadisi','🌳 Büyülü Orman','🏝️ Tropikal Ada','❄️ Buz Bahçesi','🏰 Hasat Krallığı'][Math.floor((lv.id-1)/20)];wrap.appendChild(h);}
       const p = progress[lv.id];
       const card = document.createElement('div');
       card.className = 'lvl-card' + (p.unlocked ? '' : ' locked');
@@ -751,6 +752,7 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
     setTimeout(()=>{
       a.el.classList.remove('swapping'); b.el.classList.remove('swapping');
       const matches = findMatches();
+      if(a.special||b.special){for(const t of [a,b])if(t.special){matches.add(t.id);Object.values(tiles).forEach(x=>{if(t.special==='row'&&x.row===t.row||t.special==='col'&&x.col===t.col||t.special==='bomb'&&Math.abs(x.row-t.row)<=1&&Math.abs(x.col-t.col)<=1||t.special==='rainbow'&&x.type===(t===a?b.type:a.type))matches.add(x.id);});}}
       if(matches.size === 0){
         sfx.invalid();
         swapPositions(a,b);
@@ -801,6 +803,7 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
   }
 
   function resolveMatches(matched, done){
+    const original=[...matched].map(id=>tiles[id]).filter(Boolean);let reward=null;for(const t of original){if(t.special)continue;const row=original.filter(x=>x.row===t.row&&x.type===t.type),col=original.filter(x=>x.col===t.col&&x.type===t.type);if(row.length>=5||col.length>=5){reward=[t,'rainbow'];break;}if(row.length>=3&&col.length>=3){reward=[t,'bomb'];break;}if(!reward&&(row.length>=4||col.length>=4))reward=[t,row.length>=4?'row':'col'];}if(reward){const [t,kind]=reward;matched.delete(t.id);t.special=kind;t.el.firstChild.classList.add('special');t.el.firstChild.textContent={row:'🚀',col:'🚀',bomb:'💣',rainbow:'🌈'}[kind];}
     let i = 0;
     matched.forEach(id=>{
       const tile = tiles[id];
@@ -895,6 +898,7 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
       let stars = 1;
       if(frac >= 0.5) stars = 3;
       else if(frac >= 0.22) stars = 2;
+      coins+=20+stars*10; gardenUI();
       progress[curLevel.id].stars = Math.max(progress[curLevel.id].stars, stars);
       if(curLevel.id < LEVELS.length) progress[curLevel.id+1].unlocked = true;
       document.getElementById('win-level-name').textContent = curLevel.name + ' tamamlandı';
@@ -924,6 +928,8 @@ html,body{height:auto;min-height:100%;width:100%;overflow-x:hidden}body{display:
     }
   });
 
+  function gardenUI(){document.getElementById('wallet').textContent='🪙 '+coins;document.getElementById('garden-scene').textContent=['🌱 🏡 🌱','🌷 🏡 🌳','🌳 🏡 ⛲','🌻 🏡 ⛲ 🐇','🌳 🏰 ⛲ 🌷','🌈 🏰 ⛲ 🌳'][garden];document.getElementById('garden-label').textContent='Bahçe seviyesi '+(garden+1);const b=document.getElementById('upgrade');b.disabled=garden>=5||coins<100*(garden+1);b.textContent=garden>=5?'Bahçe tamamlandı':'Geliştir · '+100*(garden+1)+' 🪙';}
+  document.getElementById('upgrade').onclick=()=>{const cost=100*(garden+1);if(garden<5&&coins>=cost){coins-=cost;garden++;gardenUI();save();launchConfetti();}};
   function fitBoard(){const w=Math.max(80,Math.min(document.documentElement.clientWidth-32,480,Math.max(240,window.innerHeight-300)));document.documentElement.style.setProperty('--tile',Math.floor(w/N)+'px');}
   function possible(){for(let r=0;r<N;r++)for(let c=0;c<N;c++)for(const [dr,dc] of [[1,0],[0,1]]){if(r+dr>=N||c+dc>=N)continue;const a=grid[r][c],b=grid[r+dr][c+dc];grid[r][c]=b;grid[r+dr][c+dc]=a;const valid=findMatches().size>0;grid[r][c]=a;grid[r+dr][c+dc]=b;if(valid)return [a,b];}return null;}
   function buildPlayable(){selected=null;for(let i=0;i<60;i++){buildBoard();if(!findMatches().size&&possible())return;}}
